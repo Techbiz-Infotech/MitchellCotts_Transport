@@ -386,6 +386,17 @@ table 50106 "Petty Cash Expenses Detail"
                                                                   "Dimension Value Type" = CONST(Standard),
                                                                   Blocked = CONST(false));
         }
+        field(112; "Petty Cash Reversed"; Boolean)
+        {
+            Caption = 'Last Modified Date';
+            DataClassification = ToBeClassified;
+
+        }
+        field(113; "Petty Cash Return No."; Code[20])
+        {
+            Caption = 'Fuel Return No.';
+            DataClassification = ToBeClassified;
+        }
     }
     keys
     {
@@ -427,6 +438,195 @@ table 50106 "Petty Cash Expenses Detail"
             exit(true);
         end;
     end;
+    //post prepaid petty cash
+    procedure PostPrepaidPettyCashReturn()
+    var
+        GLSetup: Record "General Ledger Setup";
+        Trip2, Trip : Record Trip;
+        InvShuntingTrip: Record "Invoicing Shunting Trips";
+        ShuntingTrip: Record "Shunting Details";
+        GLEntry: Record "G/L Entry";
+        DimValue: Record "Dimension Value";
+        UnigroupSetup: record "Unigroup Setup";
+        GLAccount: Record "G/L Account";
+        SalesHead: Record "Sales Header";
+        TempJnlLine: Record "Gen. Journal Line" temporary;
+        TmpDimSetEntry: Record "Dimension Set Entry" temporary;
+        DimMgmt: Codeunit DimensionManagement;
+        TempTripID: Code[20];
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+
+    begin
+        Rec.TestField("Trip ID");
+
+        GLSetup.Get();
+        UnigroupSetup.Get();
+        GLEntry.Reset();
+        GLEntry.SetRange("G/L Account No.", UnigroupSetup."Trip Prepayment From", UnigroupSetup."Trip Prepayment To");
+        GLEntry.SetRange("Shortcut Dimension 3 Code", Rec."Trip ID");
+        GLEntry.SetRange("Document No.", Rec."Voucher No.");
+        GLEntry.SetRange("Expense Prepayment Reversed", False);
+        if GLEntry.FindSet() then begin
+            repeat
+                TempJnlLine.Reset();
+                TempJnlLine.Init();
+                TempJnlLine.Validate("Journal Template Name", Unigroupsetup."Petty Cash Template Name");
+                TempJnlLine.Validate("Journal Batch Name", Unigroupsetup."Petty Cash Batch Name");
+                TempJnlLine.Validate("Line No.", 10000 * (TempJnlLine.Count + 1));
+                TempJnlLine.Validate("Posting Date", Today);
+                TempJnlLine.Validate("Document Type", 0);
+                TempJnlLine.Validate("Document No.", Rec."Voucher No." + '-R');
+                TempJnlLine.Validate("Account Type", TempJnlLine."Account Type"::"G/L Account");
+                GLAccount.Get(GLEntry."G/L Account No.");
+                TempJnlLine.Validate("Account No.", GLAccount."Prepayment Reversal Account");
+                GLEntry.CalcFields("G/L Account Name", "Shortcut Dimension 3 Code");
+                TempJnlLine.Validate(Description, Rec."Petty Cash Return No." + '-Prepaid Return for -' + GLEntry."Shortcut Dimension 3 Code" + ' ' + GLEntry."G/L Account Name");
+                TempJnlLine.Validate(Amount, Rec."Petty Cash Amount");
+                TempJnlLine.Validate("Bal. Account Type", Rec."Account Type");
+                TempJnlLine.Validate("Bal. Account No.", Rec."Account No.");
+
+                TmpDimSetEntry.DeleteAll();
+                if DimValue.get(GLSetup."Global Dimension 1 Code", Rec."Global Dimension 1 Code") then begin
+                    TmpDimSetEntry.init;
+                    TmpDimSetEntry.Validate("Dimension Code", GLSetup."Global Dimension 1 Code");
+                    TmpDimSetEntry.Validate("Dimension Value Code", Rec."Global Dimension 1 Code");
+                    TmpDimSetEntry.insert;
+                end;
+                if DimValue.get(GLSetup."Global Dimension 2 Code", Rec."Global Dimension 2 Code") then begin
+                    TmpDimSetEntry.Init;
+                    TmpDimSetEntry.Validate("Dimension Code", GLSetup."Global Dimension 2 Code");
+                    TmpDimSetEntry.Validate("Dimension Value Code", "Global Dimension 2 Code");
+                    TmpDimSetEntry.Insert;
+                end;
+                // if DimValue.Get(GLSetup."Shortcut Dimension 3 Code", GLEntry."Shortcut Dimension 3 Code") then begin
+                //     TmpDimSetEntry.Init;
+                //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 3 Code");
+                //     TmpDimSetEntry.Validate("Dimension Value Code", GLEntry."Shortcut Dimension 3 Code");
+                //     TmpDimSetEntry.Insert;
+                // end;
+                // if DimValue.Get(GLSetup."Shortcut Dimension 4 Code", Rec."Shortcut Dimension 4 Code") then begin
+                //     TmpDimSetEntry.Init();
+                //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 4 Code");
+                //     TmpDimSetEntry.Validate("Dimension Value Code", Rec."Shortcut Dimension 4 Code");
+                //     TmpDimSetEntry.Insert;
+                // end;
+                // if DimValue.Get(GLSetup."Shortcut Dimension 5 Code", Rec."Shortcut Dimension 5 Code") then begin
+                //     TmpDimSetEntry.Init;
+                //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 5 Code");
+                //     TmpDimSetEntry.Validate("Dimension Value Code", Rec."Shortcut Dimension 5 Code");
+                //     TmpDimSetEntry.Insert;
+                // end;
+                // if DimValue.Get(GLSetup."Shortcut Dimension 6 Code", Rec."Shortcut Dimension 6 Code") then begin
+                //     TmpDimSetEntry.Init;
+                //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 6 Code");
+                //     TmpDimSetEntry.Validate("Dimension Value Code", Rec."Shortcut Dimension 6 Code");
+                //     TmpDimSetEntry.Insert();
+                // end;
+                // if DimValue.Get(GLSetup."Shortcut Dimension 7 Code", Rec."Shortcut Dimension 7 Code") then begin
+                //     TmpDimSetEntry.Init;
+                //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 7 Code");
+                //     TmpDimSetEntry.Validate("Dimension Value Code", Rec."Shortcut Dimension 7 Code");
+                //     TmpDimSetEntry.Insert();
+                // end;
+                // if DimValue.Get(GLSetup."Shortcut Dimension 8 Code", Rec."Shortcut Dimension 8 Code") then begin
+                //     TmpDimSetEntry.Init;
+                //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 8 Code");
+                //     TmpDimSetEntry.Validate("Dimension Value Code", Rec."Shortcut Dimension 8 Code");
+                //     TmpDimSetEntry.Insert();
+                // end;
+                TempJnlLine.validate("Dimension Set ID", DimMgmt.GetDimensionSetID(TmpDimSetEntry));
+                TempJnlLine.insert(true);
+                GenJnlPostLine.RunWithCheck(TempJnlLine);
+                GLEntry."Expense Prepayment Reversed" := true;
+                GLEntry.Modify(true);
+            until GLEntry.Next() = 0;
+        end;
+
+    end;
+    //post petty cash return
+    procedure PostDirectPettyCashReturnJournal()
+    var
+
+        GLSetup: Record "General Ledger Setup";
+        GLEntry: Record "G/L Entry";
+        TempJnlLine: Record "Gen. Journal Line" temporary;
+        TmpDimSetEntry: Record "Dimension Set Entry" temporary;
+        DimValue: Record "Dimension Value";
+        DimMgmt: Codeunit DimensionManagement;
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        GLAccount: Record "G/L Account";
+        Unigroupsetup: Record "Unigroup Setup";
+        Trip: Record Trip;
+    begin
+
+
+        if Rec."Petty Cash For" = Rec."Petty Cash For"::Trip then
+            TestField("Trip ID");
+        Rec.TestField("Petty Cash Approval Status", Rec."Petty Cash Approval Status"::Approved);
+        Rec.testfield("Transaction Reference No.");
+        TempJnlLine.Reset();
+        TempJnlLine.Init();
+        Unigroupsetup.Get();
+        TempJnlLine."Journal Template Name" := Unigroupsetup."Petty Cash Template Name";
+        TempJnlLine."Journal Batch Name" := Unigroupsetup."Petty Cash Batch Name";
+        TempJnlLine."Line No." += 10000;
+        TempJnlLine.Validate("Posting Date", Today);
+        //TempJnlLine."Document Type" := TempJnlLine."Document Type"::Payment;
+        TempJnlLine.Validate("Document No.", Rec."Voucher No." + '-R');
+        TempJnlLine.Validate("Account Type", Rec."Bal. Account Type");
+        TempJnlLine.Validate("Account No.", Rec."Bal. Account No.");
+        TempJnlLine.Validate("Bal. Account Type", Rec."Account Type");
+        TempJnlLine.Validate("Bal. Account No.", Rec."Account No.");
+        TempJnlLine.Validate(Amount, Rec."Petty Cash Amount");
+        TempJnlLine.Validate(Description, Rec."Petty Cash Return No." + '-Reversal for voucher no:' + Rec."Voucher No.");
+        GLSetup.get();
+        TmpDimSetEntry.DeleteAll();
+        if DimValue.Get(GLSetup."Global Dimension 1 Code", Rec."Global Dimension 1 Code") then begin
+            TmpDimSetEntry.Init();
+            TmpDimSetEntry.Validate("Dimension Code", GLSetup."Global Dimension 1 Code");
+            TmpDimSetEntry.Validate("Dimension Value Code", Rec."Global Dimension 1 Code");
+            TmpDimSetEntry.Insert();
+        end;
+        if DimValue.get(GLSetup."Global Dimension 2 Code", Rec."Global Dimension 2 Code") then begin
+            TmpDimSetEntry.Init();
+            TmpDimSetEntry.Validate("Dimension Code", GLSetup."Global Dimension 2 Code");
+            TmpDimSetEntry.Validate("Dimension Value Code", Rec."Global Dimension 2 Code");
+            TmpDimSetEntry.Insert();
+        end;
+        // if DimValue.Get(GLSetup."Shortcut Dimension 3 Code", Rec."Shortcut Dimension 3 Code") then begin
+        //     TmpDimSetEntry.Init;
+        //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 3 Code");
+        //     TmpDimSetEntry.Validate("Dimension Value Code", Rec."Shortcut Dimension 3 Code");
+        //     TmpDimSetEntry.Insert();
+        // end;
+        // if DimValue.Get(GLSetup."Shortcut Dimension 4 Code", Rec."Shortcut Dimension 4 Code") then begin
+        //     TmpDimSetEntry.Init;
+        //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 4 Code");
+        //     TmpDimSetEntry.Validate("Dimension Value Code", Rec."Shortcut Dimension 4 Code");
+        //     TmpDimSetEntry.insert;
+        // end;
+        // if DimValue.Get(GLSetup."Shortcut Dimension 5 Code", Rec."Shortcut Dimension 5 Code") then begin
+        //     TmpDimSetEntry.Init;
+        //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 5 Code");
+        //     TmpDimSetEntry.Validate("Dimension Value Code", Rec."Shortcut Dimension 5 Code");
+        //     TmpDimSetEntry.Insert();
+        // end;
+        // if DimValue.Get(GLSetup."Shortcut Dimension 6 Code", Rec."Shortcut Dimension 6 Code") then begin
+        //     TmpDimSetEntry.Init;
+        //     TmpDimSetEntry.Validate("Dimension Code", GLSetup."Shortcut Dimension 6 Code");
+        //     TmpDimSetEntry.Validate("Dimension Value Code", Rec."Shortcut Dimension 6 Code");
+        //     TmpDimSetEntry.Insert();
+        // end;
+        TempJnlLine.Validate("Dimension Set ID", DimMgmt.GetDimensionSetID(TmpDimSetEntry));
+        TempJnlLine.insert(true);
+        GenJnlPostLine.RunWithCheck(TempJnlLine);
+
+
+
+    end;
+
+
+    //end
 
     procedure PostPettycashJournals()
     var

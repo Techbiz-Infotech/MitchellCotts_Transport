@@ -172,6 +172,42 @@ page 50244 "Posted Petty Cash Card"
                     end;
                 }
             }
+
+            action(PettyCashReturn)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Petty Cash Return';
+                Image = Document;
+                //Visible = false;
+                trigger OnAction()
+                var
+                    FuelReturn: Record "Fuel Return";
+                    Vehicle: Record "Fixed Asset";
+                begin
+                    if not Confirm('Do you want to post Petty Cash Return?', false) then
+                        exit else begin
+                        If not Rec."Petty Cash Reversed" then begin
+                            CreatePettyCashReturn();
+                            if Rec."Petty Cash For" = Rec."Petty Cash For"::"Non-Trip" then
+                                Rec.PostDirectPettyCashReturnJournal()
+                            else begin
+                                if not Rec."For Closed Trip?" then
+                                    Rec.PostPrepaidPettyCashReturn()
+                                else
+                                    Rec.PostDirectPettyCashReturnJournal();
+                            end;
+                            Rec."Petty Cash Reversed" := true;
+                            Rec."Petty Cash Return No." := Rec."Voucher No." + '-R';
+                            Rec.Modify();
+
+                        end else
+                            Error('This Petty Cash is already reversed');
+                        CurrPage.Update(false);
+                        CurrPage.Close();
+                    end;
+                end;
+
+            }
         }
     }
     trigger OnOpenPage()
@@ -190,6 +226,7 @@ page 50244 "Posted Petty Cash Card"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        GroupAdminEditable: Boolean;
 
     local procedure SetDimensionsVisibility()
     var
@@ -209,6 +246,49 @@ page 50244 "Posted Petty Cash Card"
 
         Clear(DimMgt);
 
+    end;
+
+    procedure GroupAuditEdit()
+    var
+        UserSetup: Record "User Setup";
+    begin
+        UserSetup.Get(UserId);
+        if UserSetup."Manual Release" then
+            GroupAdminEditable := true
+        else
+            GroupAdminEditable := false;
+    end;
+
+    procedure CreatePettyCashReturn()
+    var
+        PettyCashReturn: Record "Petty Cash Return";
+        UnigroupSetup: Record "Unigroup Setup";
+        NoSeriesMgt: Codeunit "No. Series";
+    begin
+        UnigroupSetup.Get();
+        PettyCashReturn.Init();
+        PettyCashReturn."Petty Cash Return No." := Rec."Voucher No." + '-R';
+        PettyCashReturn."Return Date" := WorkDate();
+        PettyCashReturn."Trip ID" := Rec."Trip ID";
+        PettyCashReturn."Vehicle No." := Rec."Vehicle No.";
+        PettyCashReturn."Driver ID" := Rec."Driver ID";
+        PettyCashReturn."Driver Name" := Rec."Driver Name";
+        PettyCashReturn."Shortcut Dimension 6 Code" := Rec."Shortcut Dimension 6 Code";
+        PettyCashReturn."Expense Type" := Rec."Expense Type";
+        PettyCashReturn."Transaction Reference No." := Rec."Transaction Reference No.";
+        PettyCashReturn."Petty Cash Amount" := Rec."Petty Cash Amount";
+        PettyCashReturn."Voucher No." := Rec."Voucher No.";
+        PettyCashReturn."Petty Cash For" := Rec."Petty Cash For";
+        PettyCashReturn."Account Name" := Rec."Account Name";
+        PettyCashReturn."Account No." := Rec."Account No.";
+        PettyCashReturn."For Closed Trip?" := Rec."For Closed Trip?";
+        PettyCashReturn."Bal. Account No." := Rec."Bal. Account No.";
+        PettyCashReturn."Bal. Account Type" := Rec."Bal. Account Type";
+        PettyCashReturn."Petty Cash Approval Status" := Rec."Petty Cash Approval Status";
+        PettyCashReturn."Petty Cash Status" := Rec."Petty Cash Status";
+        PettyCashReturn."Mobile Phone No." := Rec."Mobile Phone No.";
+        PettyCashReturn.Insert();
+        Rec.Modify();
     end;
 
 }

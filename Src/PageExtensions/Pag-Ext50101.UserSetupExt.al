@@ -101,7 +101,7 @@ pageextension 50101 UserSetupExt extends "User Setup"
     }
     trigger OnOpenPage()
     begin
-        if (UserId <> 'GROUPAUDIT') and (UserId <> 'TI') then
+        if (UserId <> 'GROUPAUDIT') and (UserId <> 'TI') and (UserId <> 'SHILLAH') then
             CurrPage.Editable := false
         else
             CurrPage.Editable := true;
@@ -111,7 +111,7 @@ pageextension 50101 UserSetupExt extends "User Setup"
     var
         UserSetup: Record "User Setup";
     begin
-        if (UserId <> 'GROUPAUDIT') and (UserId <> 'TI') and (UserId <> 'MARWANA') then
+        if (UserId <> 'GROUPAUDIT') and (UserId <> 'TI') and (UserId <> 'MARWANA') and (UserId <> 'SHILLAH') then
             CurrPage.Editable := false
         else
             CurrPage.Editable := true;
