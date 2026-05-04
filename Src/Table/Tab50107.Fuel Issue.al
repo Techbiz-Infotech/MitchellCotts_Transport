@@ -740,10 +740,12 @@ table 50107 "Fuel Issue"
         TransferorderHeader.Validate("Dimension Set ID", DimSetID2);
         Transferorderline.Insert();
         TransferOrderPostTransfer.Run(TransferorderHeader);
+        //KV28042026
         if Rec."Fuel Source" = Rec."Fuel Source"::External then begin
             Rec.CalcFields("Purchase Receipt No.");
             UndoReceiptLine(Rec."Purchase Receipt No.");
         end;
+        //KV28042026
         Rec.UpdateFuelLog(2, "Net Requirement In Litres", WorkDate(), TransferorderHeader."No.");
     end;
 
