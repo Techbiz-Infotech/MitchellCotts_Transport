@@ -283,7 +283,7 @@ table 50148 "Unigroup Setup"
             Caption = 'Default HS Code Zero rated';
             DataClassification = ToBeClassified;
         }
-        field(50;"Fuel Return No."; Code[20])
+        field(50; "Fuel Return No."; Code[20])
         {
             Caption = 'Fuel Return No.';
             DataClassification = ToBeClassified;
@@ -300,6 +300,12 @@ table 50148 "Unigroup Setup"
             Caption = 'Prod Group for Closed Trip Fuel';
             DataClassification = ToBeClassified;
             TableRelation = "Gen. Product Posting Group";
+        }
+        field(53; "Petty Cash Return No."; Code[20])
+        {
+            Caption = 'Petty Cash Return No.';
+            DataClassification = ToBeClassified;
+            TableRelation = "No. Series";
         }
     }
     keys

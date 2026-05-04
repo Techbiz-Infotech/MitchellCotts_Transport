@@ -1705,16 +1705,25 @@ table 50100 Trip
     procedure CalculateTripRevenue();
     var
         Shunting: Record "Shunting Details";
+        Trip: Record Trip;
+        PostedSalesInv: Record "Sales Invoice Line";
     begin
-        if Rec."Global Dimension 2 Code" <> 'SHUNTING' then
-            exit;
         Rec."Trip Revenue" := 0;
-        Shunting.Reset();
-        Shunting.SetRange("Trip Id", Rec."Trip ID");
-        if Shunting.FindSet() then
-            repeat
-                Rec."Trip Revenue" += Shunting."Container Charge";
-            until Shunting.Next() = 0;
+        if Rec."Global Dimension 2 Code" = 'SHUNTING' then begin
+            Shunting.Reset();
+            Shunting.SetRange("Trip Id", Rec."Trip ID");
+            if Shunting.FindSet() then
+                repeat
+                    Rec."Trip Revenue" += Shunting."Container Charge";
+                until Shunting.Next() = 0;
+        end else begin
+            PostedSalesInv.reset;
+            PostedSalesInv.SetRange("Shortcut Dimension 3 Code", Rec."Trip ID");
+            if PostedSalesInv.FindSet() then
+                repeat
+                    Rec."Trip Revenue" += PostedSalesInv."Line Amount";
+                until PostedSalesInv.Next() = 0;
+        end;
     end;
 
 

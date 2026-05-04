@@ -1,6 +1,6 @@
 report 50135 "Local & Shunting report"
 {
-    Caption = 'Local & Shunting Report';
+    Caption = 'Trips Report';
     ApplicationArea = All;
     UsageCategory = ReportsAndAnalysis;
     ProcessingOnly = true;
@@ -9,13 +9,14 @@ report 50135 "Local & Shunting report"
         dataitem(Trip; Trip)
         {
             DataItemTableView = SORTING("Trip ID") where("Global Dimension 2 Code" = filter('LOCAL'));
+            RequestFilterFields = "Global Dimension 1 Code", "Global Dimension 2 Code", "Shortcut Dimension 3 Code", "Shortcut Dimension 4 Code";
 
             trigger OnPreDataItem()
             begin
 
                 if CustomerNo <> '' then
                     Trip.SetRange("Client No.", CustomerNo);
-                Trip.SetRange("Trip Date", StartDate,EndDate);
+                Trip.SetRange("Trip Date", StartDate, EndDate);
                 if TruckNo <> '' then
                     Trip.SetRange("Vehicle No.", TruckNo);
                 // if TripID <> '' then
@@ -92,7 +93,7 @@ report 50135 "Local & Shunting report"
                     Trip1.SetRange("Client No.", CustomerNo);
                 if TruckNo <> '' then
                     Trip1.SetRange("Vehicle No.", TruckNo);
-                Trip1.SetRange("Trip Date", StartDate,EndDate);
+                Trip1.SetRange("Trip Date", StartDate, EndDate);
                 CreateShuntingExcelHeader();
 
             end;
