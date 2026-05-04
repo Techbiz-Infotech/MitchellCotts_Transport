@@ -678,7 +678,26 @@ table 50107 "Fuel Issue"
             "Net Requirement in litres" := 0;
 
     end;
-
+    //KV28042026
+    local procedure UndoReceiptLine(RcptNo: Code[20])
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchRcptHead: Record "Purch. Rcpt. Header";
+        ItemLedgEntry: Record "Item Ledger Entry";
+    begin
+        PurchRcptLine.Reset();
+        PurchRcptLine.SetRange("Document No.", RcptNo);
+        if PurchRcptLine.FindFirst() then begin
+            if PurchRcptLine."Quantity Invoiced" > 0 then
+                Error('Receipt %1 has already been invoiced. Unable to undo receipt line.', RcptNo);
+            if ItemLedgEntry.Get(PurchRcptLine."Item Rcpt. Entry No.") then
+                if ItemLedgEntry."Remaining Quantity" <> ItemLedgEntry.Quantity then
+                    Error('Receipt %1 has already been consumed. Unable to undo receipt line.', RcptNo);
+            if not CODEUNIT.Run(CODEUNIT::"Undo Purchase Receipt Line", PurchRcptLine) then
+                Error('Unable to undo receipt line for receipt %1', RcptNo);
+        end;
+    end;
+    //KV28042026
     procedure TransferOrderForFuelReturn(FuelReturn: Record "Fuel Return")
     var
         TransferorderHeader: Record "Transfer Header";
@@ -721,6 +740,12 @@ table 50107 "Fuel Issue"
         TransferorderHeader.Validate("Dimension Set ID", DimSetID2);
         Transferorderline.Insert();
         TransferOrderPostTransfer.Run(TransferorderHeader);
+        //KV28042026
+        if Rec."Fuel Source" = Rec."Fuel Source"::External then begin
+            Rec.CalcFields("Purchase Receipt No.");
+            UndoReceiptLine(Rec."Purchase Receipt No.");
+        end;
+        //KV28042026
         Rec.UpdateFuelLog(2, "Net Requirement In Litres", WorkDate(), TransferorderHeader."No.");
     end;
 
@@ -763,6 +788,12 @@ table 50107 "Fuel Issue"
         TempItemJnlLine.Validate("Dimension Set ID", DimSetID);
         TempItemJnlLine.Insert(true);
         ItemJnlPostline.RunWithCheck(TempItemJnlLine);
+        //KV28042026
+        if Rec."Fuel Source" = Rec."Fuel Source"::External then begin
+            Rec.CalcFields("Purchase Receipt No.");
+            UndoReceiptLine(Rec."Purchase Receipt No.");
+        end;
+        //KV28042026
     end;
 
     procedure UpdateFuelLog(lEntryType: Integer; Qty: Decimal; PostingDate: Date; DocNo: code[20])
