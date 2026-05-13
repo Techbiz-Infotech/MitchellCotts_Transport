@@ -68,9 +68,9 @@ page 50178 "Posted Inspection worksheet"
             }
 
         }
-area(factboxes)
+        area(factboxes)
         {
-            part("Attached Documents"; "Document Attachment Factbox")
+            part("Attached Documents"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';

@@ -24,6 +24,7 @@ report 50123 "Goods Received"
             column(OrderDateCptnlbl; OrderDateCptnlbl) { }
             column(Buy_from_Vendor_Name; "Buy-from Vendor Name") { }
             column(No_; "No.") { }
+            column(Currency_Code; "Currency Code") { }
             column(Order_Date; "Order Date") { }
             column(ORIGINALDOCUMENTCptnlbl; ORIGINALDOCUMENTCptnlbl) { }
             column(GOODSRECEIVEDNOTECptnlbl; GOODSRECEIVEDNOTECptnlbl) { }
@@ -74,6 +75,7 @@ report 50123 "Goods Received"
                     VatAmount := ("Amount Including VAT" - Amount)
                 else
                     VatAmount := 0;
+                if "Currency Code" = '' then "Currency Code" := 'KSH';
             end;
 
             trigger OnPreDataItem()

@@ -122,7 +122,7 @@ page 50150 "Trip Invoice List"
                     ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Global Dimension 2 Code";Rec."Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -283,7 +283,7 @@ page 50150 "Trip Invoice List"
         }
         area(factboxes)
         {
-            part(AttachedDocuments; "Document Attachment Factbox")
+            part(AttachedDocuments; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';

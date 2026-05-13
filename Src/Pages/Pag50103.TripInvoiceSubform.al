@@ -780,7 +780,7 @@ page 50103 "Trip Invoice Subform"
                         EditinExcel: Codeunit "Edit in Excel";
                         EditinExcelFilters: Codeunit "Edit in Excel Filters";
                     begin
-                        EditinExcelFilters.AddField('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
 
                         EditinExcel.EditPageInExcel(
                             'Sales_InvoiceSalesLines',
