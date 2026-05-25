@@ -741,6 +741,7 @@ table 50107 "Fuel Issue"
         Transferorderline.Insert();
         TransferOrderPostTransfer.Run(TransferorderHeader);
         //KV28042026
+        Commit();
         if Rec."Fuel Source" = Rec."Fuel Source"::External then begin
             Rec.CalcFields("Purchase Receipt No.");
             UndoReceiptLine(Rec."Purchase Receipt No.");
