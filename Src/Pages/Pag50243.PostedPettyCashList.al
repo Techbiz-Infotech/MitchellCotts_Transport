@@ -57,7 +57,14 @@ page 50243 "Posted Petty Cash ExpensesList"
                 {
                     ApplicationArea = All;
                 }
-
+                field("Petty Cash Reversed"; Rec."Petty Cash Reversed")
+                {
+                    ApplicationArea = All;
+                }
+                field("Petty Cash Return No."; Rec."Petty Cash Return No.")
+                {
+                    ApplicationArea = All;
+                }
                 field("Vehicle No."; Rec."Vehicle No.")
                 {
                     ApplicationArea = All;

@@ -8,7 +8,7 @@ codeunit 50100 "Event Handler"
         ItemLedgerEntry."Trip ID" := ItemJournalLine."Trip ID";
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Document Attachment Factbox", 'OnBeforeDrillDown', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Doc. Attachment List Factbox", 'OnAfterGetRecRefFail', '', false, false)]
     local procedure OnBeforeDrillDown(DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef);
     var
         Trip: Record Trip;
@@ -348,7 +348,7 @@ codeunit 50100 "Event Handler"
                 repeat
                     if (Trip2."Global Dimension 2 Code" = 'SHUNTING') or (Trip2."Global Dimension 2 Code" = '3PL') then begin
                         ShuntingTrip.Reset();
-                        shuntingTrip.Setrange("Trip Id",Trip2."Trip ID");
+                        shuntingTrip.Setrange("Trip Id", Trip2."Trip ID");
                         ShuntingTrip.SetFilter("Billing Status", '<>%1', ShuntingTrip."Billing Status"::Invoiced);
                         if not ShuntingTrip.FindSet() then begin
                             Trip2.Invoiced := true;

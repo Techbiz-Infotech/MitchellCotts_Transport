@@ -388,13 +388,13 @@ table 50106 "Petty Cash Expenses Detail"
         }
         field(112; "Petty Cash Reversed"; Boolean)
         {
-            Caption = 'Last Modified Date';
+            Caption = 'Petty Cash Reversed';
             DataClassification = ToBeClassified;
 
         }
         field(113; "Petty Cash Return No."; Code[20])
         {
-            Caption = 'Fuel Return No.';
+            Caption = 'Petty Cash Return.';
             DataClassification = ToBeClassified;
         }
     }

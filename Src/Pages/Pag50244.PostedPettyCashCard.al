@@ -80,6 +80,14 @@ page 50244 "Posted Petty Cash Card"
                 {
                     ApplicationArea = All;
                 }
+                field("Petty Cash Reversed"; Rec."Petty Cash Reversed")
+                {
+                    ApplicationArea = All;
+                }
+                field("Petty Cash Return No."; Rec."Petty Cash Return No.")
+                {
+                    ApplicationArea = All;
+                }
             }
             group(Dimensions)
             {
@@ -136,7 +144,7 @@ page 50244 "Posted Petty Cash Card"
         }
         area(factboxes)
         {
-            part("Attached Documents"; "Document Attachment Factbox")
+            part("Attached Documents"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
@@ -199,7 +207,7 @@ page 50244 "Posted Petty Cash Card"
                             Rec."Petty Cash Reversed" := true;
                             Rec."Petty Cash Return No." := Rec."Voucher No." + '-R';
                             Rec.Modify();
-
+                            Message('Posted Successfully');
                         end else
                             Error('This Petty Cash is already reversed');
                         CurrPage.Update(false);

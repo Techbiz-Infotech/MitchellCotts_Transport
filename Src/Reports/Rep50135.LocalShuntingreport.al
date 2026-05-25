@@ -8,7 +8,8 @@ report 50135 "Local & Shunting report"
     {
         dataitem(Trip; Trip)
         {
-            DataItemTableView = SORTING("Trip ID") where("Global Dimension 2 Code" = filter('LOCAL'));
+            //changed from local to every other trip type apart from shunting
+            DataItemTableView = SORTING("Trip ID") where("Global Dimension 2 Code" = filter(<> 'SHUNTING'));
             RequestFilterFields = "Global Dimension 1 Code", "Global Dimension 2 Code", "Shortcut Dimension 3 Code", "Shortcut Dimension 4 Code";
 
             trigger OnPreDataItem()
@@ -37,7 +38,7 @@ report 50135 "Local & Shunting report"
                     CrediNo := CreditLine."Document No.";
                 postedsalesLine.Reset();
                 postedsalesLine.SetRange("Shortcut Dimension 3 Code", "Trip ID");
-                postedsalesLine.SetRange("Shortcut Dimension 2 Code", 'LOCAL');
+                postedsalesLine.SetRange("Shortcut Dimension 2 Code", '<>%1', 'SHUNTING');
                 if postedsalesLine.FindFirst() then
                     InvoiceNo := postedsalesLine."Document No.";
                 TripType.Reset();
@@ -262,7 +263,7 @@ report 50135 "Local & Shunting report"
     local procedure CreateExcelBook()
     begin
         TempExcelBuffer.CloseBook();
-        TempExcelBuffer.SetFriendlyFilename('Local & Shunting Export');
+        TempExcelBuffer.SetFriendlyFilename('Trips Report');
         TempExcelBuffer.OpenExcel();
     end;
 

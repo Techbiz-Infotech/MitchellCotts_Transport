@@ -343,7 +343,7 @@ page 50102 "Trip Invoice"
                         CurrPage.Update();
                     end;
                 }
-                
+
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -775,7 +775,7 @@ page 50102 "Trip Invoice"
         }
         area(factboxes)
         {
-            part("Attached Documents"; "Document Attachment Factbox")
+            part("Attached Documents"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
