@@ -6,15 +6,15 @@
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "test2",
-            "tenant": "9e2d2fad-8d00-40a5-aac1-b306143213f9",
-            "startupObjectId": 50100,
-            "startupObjectType": "Page",
+            "environmentName": "Development",
+            "tenant": "19f4a39f-a942-4569-939a-df2178c32e23",
+            //"startupObjectId": 50100,
+            //"startupObjectType": "Page",
             "breakOnError": "All",
             "launchBrowser": true,
             "enableLongRunningSqlStatements": true,
-            "schemaUpdateMode": "Synchronize",
+            "schemaUpdateMode": "ForceSync",     
             "enableSqlInformationDebugger": true
         }
-    ]
+    ]  
 }
